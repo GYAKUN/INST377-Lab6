@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 6 INST 377</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 400px; }
+    </style>
+</head>
+<body>
+    <h1>Map of US</h1>
+    <div id="map"></div>
+    <div id="markers"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('map').setView([37.5, -95], 4);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        function getRandomInRange(from, to, fixed) {
+            return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
+        }
+
+        const coordinates = [];
+        for (let i = 0; i < 3; i++) {
+            const lat = getRandomInRange(30, 35, 3);
+            const lon = getRandomInRange(-100, -90, 3);
+            coordinates.push({ lat, lon });
+            const marker = L.marker([lat, lon]).addTo(map);
+            marker.bindPopup(`Marker ${i + 1}<br>Coordinates: ${lat}, ${lon}`).openPopup();
+            fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('markers').innerHTML += `<p><strong>Marker ${i + 1}: Latitude: ${lat}, Longitude: ${lon}</strong><br>Locality: ${data.locality || 'Not found'}</p>`;
+                });
+        }
+    </script>
+</body>
+</html>
